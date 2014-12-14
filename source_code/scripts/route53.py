@@ -20,7 +20,7 @@ def get_consul_instances(region):
     # filter for only the consul instances
     print "Looking for Consul Server instances..."
     for i in all_instances:
-        if i.tags['Name'] == 'consul-server':
+        if i.tags['Name'] == 'consul-server' and i.state == 'running':
             print "  Consul Server:", i
             consul_servers.append(i)
 
