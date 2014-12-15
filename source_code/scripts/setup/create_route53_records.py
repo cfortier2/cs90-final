@@ -2,6 +2,9 @@
 # this script is to create Route53 entries for the Consul Servers.
 # this can only be run once the private zone has been created.
 #
+# IMPORTANT: this is intended to be run outside of the cluster. I'm running
+# this from my laptop because it requires AWS credentials
+#
 # process:
 #   query ec2 looking for instance tags with `consul-server`
 #   create dns name

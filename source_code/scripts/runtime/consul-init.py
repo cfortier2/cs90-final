@@ -28,7 +28,7 @@ def get_peer_zones(region, az, domain):
     _zones = []
     for char in string.ascii_lowercase[0:10]:
         # append the char to the region
-        test_zone = region + char + domain
+        test_zone = 'consul.' + region + char + domain
         debug(test_zone)
 
         # do a lookup
@@ -65,12 +65,23 @@ def run_command(config):
     data_dir_arg = '-data-dir=' + str(config['data_dir'])
 
     # build bootstrap-expect
-    bootstrap_expect_arg = '-bootstrap-expect=' + str(len(config['peer_zones']) + 1)
+    bootstrap_expect_arg = '-bootstrap-expect=' + str(len(config['peer_zones']))
 
     # add data center
     dc_arg = '-dc=' + str(config['region'])
 
-    command = ["nohup", "consul", "agent", "-server", data_dir_arg, bootstrap_expect_arg, dc_arg]
+    # web ui
+    if 'web_ui_dir' in config.keys():
+        web_ui_arg = '-ui-dir=' + config['web_ui_dir']
+    else:
+        web_ui_arg = ''
+
+    # server mode
+    if config['server']:
+        command = ["nohup", "consul", "agent", "-server", data_dir_arg, bootstrap_expect_arg, dc_arg, web_ui_arg]
+    else:
+        command = ["nohup", "consul", "agent", data_dir_arg, dc_arg]
+
     return command
 
 def join_command(config):
@@ -202,12 +213,15 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('command', help='command to run')
     parser.add_argument('--join', help='join a cluster', action = 'store_true')
+    parser.add_argument('--server', help='consul server mode', action = 'store_true')
     args = parser.parse_args()
 
     config = {
             'data_dir'  : '/opt/consul',
-            'domain'    : '.consul',
-            'pid_file'  : '/var/run/consul.pid'
+            'web_ui_dir'  : '/opt/consul',
+            'domain'    : '.cs90',
+            'pid_file'  : '/var/run/consul.pid',
+            'server'    : False
             }
     config['peer_zones'] = get_peer_zones(get_region(), get_az(), config['domain'])
     config['region'] = get_region()
@@ -215,6 +229,8 @@ if __name__ == '__main__':
     debug(config)
 
     if args.command == 'start':
+        if args.server:
+            config['server'] = True
         start_agent(config)
         if args.join:
             print "Attempting to join cluster"

@@ -1,0 +1,437 @@
+{
+    "Resources": {
+        "GatewayAttachment": {
+            "Properties": {
+                "InternetGatewayId": {
+                    "Ref": "InternetGateway"
+                }, 
+                "VpcId": {
+                    "Ref": "demoVpc"
+                }
+            }, 
+            "Type": "AWS::EC2::VPCGatewayAttachment"
+        }, 
+        "InternetGateway": {
+            "Type": "AWS::EC2::InternetGateway"
+        }, 
+        "PublicSubnet1": {
+            "Properties": {
+                "AvailabilityZone": "us-east-1a", 
+                "CidrBlock": "10.43.1.0/24", 
+                "Tags": [
+                    {
+                        "Key": "Application", 
+                        "Value": {
+                            "Ref": "AWS::StackName"
+                        }
+                    }
+                ], 
+                "VpcId": {
+                    "Ref": "demoVpc"
+                }
+            }, 
+            "Type": "AWS::EC2::Subnet"
+        }, 
+        "PublicSubnet2": {
+            "Properties": {
+                "AvailabilityZone": "us-east-1b", 
+                "CidrBlock": "10.43.2.0/24", 
+                "Tags": [
+                    {
+                        "Key": "Application", 
+                        "Value": {
+                            "Ref": "AWS::StackName"
+                        }
+                    }
+                ], 
+                "VpcId": {
+                    "Ref": "demoVpc"
+                }
+            }, 
+            "Type": "AWS::EC2::Subnet"
+        }, 
+        "PublicSubnet3": {
+            "Properties": {
+                "AvailabilityZone": "us-east-1d", 
+                "CidrBlock": "10.43.3.0/24", 
+                "Tags": [
+                    {
+                        "Key": "Application", 
+                        "Value": {
+                            "Ref": "AWS::StackName"
+                        }
+                    }
+                ], 
+                "VpcId": {
+                    "Ref": "demoVpc"
+                }
+            }, 
+            "Type": "AWS::EC2::Subnet"
+        }, 
+        "consul": {
+            "Properties": {
+                "GroupDescription": "consul cluster", 
+                "Tags": [
+                    {
+                        "Key": "Name", 
+                        "Value": "demo-consul"
+                    }
+                ], 
+                "VpcId": {
+                    "Ref": "demoVpc"
+                }
+            }, 
+            "Type": "AWS::EC2::SecurityGroup"
+        }, 
+        "consul8300": {
+            "Properties": {
+                "FromPort": 8300, 
+                "GroupId": {
+                    "Ref": "consul"
+                }, 
+                "IpProtocol": "tcp", 
+                "SourceSecurityGroupId": {
+                    "Ref": "consul"
+                }, 
+                "ToPort": 8300
+            }, 
+            "Type": "AWS::EC2::SecurityGroupIngress"
+        }, 
+        "consul8301": {
+            "Properties": {
+                "FromPort": 8301, 
+                "GroupId": {
+                    "Ref": "consul"
+                }, 
+                "IpProtocol": "tcp", 
+                "SourceSecurityGroupId": {
+                    "Ref": "consul"
+                }, 
+                "ToPort": 8301
+            }, 
+            "Type": "AWS::EC2::SecurityGroupIngress"
+        }, 
+        "consul8302": {
+            "Properties": {
+                "FromPort": 8302, 
+                "GroupId": {
+                    "Ref": "consul"
+                }, 
+                "IpProtocol": "tcp", 
+                "SourceSecurityGroupId": {
+                    "Ref": "consul"
+                }, 
+                "ToPort": 8302
+            }, 
+            "Type": "AWS::EC2::SecurityGroupIngress"
+        }, 
+        "consul8400": {
+            "Properties": {
+                "FromPort": 8400, 
+                "GroupId": {
+                    "Ref": "consul"
+                }, 
+                "IpProtocol": "tcp", 
+                "SourceSecurityGroupId": {
+                    "Ref": "consul"
+                }, 
+                "ToPort": 8400
+            }, 
+            "Type": "AWS::EC2::SecurityGroupIngress"
+        }, 
+        "consul8500": {
+            "Properties": {
+                "FromPort": 8500, 
+                "GroupId": {
+                    "Ref": "consul"
+                }, 
+                "IpProtocol": "tcp", 
+                "SourceSecurityGroupId": {
+                    "Ref": "consul"
+                }, 
+                "ToPort": 8500
+            }, 
+            "Type": "AWS::EC2::SecurityGroupIngress"
+        }, 
+        "consul8600": {
+            "Properties": {
+                "FromPort": 8600, 
+                "GroupId": {
+                    "Ref": "consul"
+                }, 
+                "IpProtocol": "tcp", 
+                "SourceSecurityGroupId": {
+                    "Ref": "consul"
+                }, 
+                "ToPort": 8600
+            }, 
+            "Type": "AWS::EC2::SecurityGroupIngress"
+        }, 
+        "consulUi": {
+            "Properties": {
+                "CidrIp": "68.193.66.133/32", 
+                "FromPort": 8500, 
+                "GroupId": {
+                    "Ref": "consul"
+                }, 
+                "IpProtocol": "tcp", 
+                "ToPort": 8500
+            }, 
+            "Type": "AWS::EC2::SecurityGroupIngress"
+        }, 
+        "demoAsg": {
+            "Properties": {
+                "AvailabilityZones": [
+                    "us-east-1a", 
+                    "us-east-1b", 
+                    "us-east-1d"
+                ], 
+                "LaunchConfigurationName": {
+                    "Ref": "demoLaunchConfig"
+                }, 
+                "LoadBalancerNames": [
+                    {
+                        "Ref": "demoElb"
+                    }
+                ], 
+                "MaxSize": 3, 
+                "MinSize": 3, 
+                "Tags": [
+                    {
+                        "Key": "Name", 
+                        "PropagateAtLaunch": true, 
+                        "Value": "demo-host"
+                    }
+                ], 
+                "VPCZoneIdentifier": [
+                    {
+                        "Ref": "PublicSubnet1"
+                    }, 
+                    {
+                        "Ref": "PublicSubnet2"
+                    }, 
+                    {
+                        "Ref": "PublicSubnet3"
+                    }
+                ]
+            }, 
+            "Type": "AWS::AutoScaling::AutoScalingGroup"
+        }, 
+        "demoConsulAsg": {
+            "Properties": {
+                "AvailabilityZones": [
+                    "us-east-1a", 
+                    "us-east-1b", 
+                    "us-east-1d"
+                ], 
+                "LaunchConfigurationName": {
+                    "Ref": "demoConsulLaunchConfig"
+                }, 
+                "MaxSize": 3, 
+                "MinSize": 3, 
+                "Tags": [
+                    {
+                        "Key": "Name", 
+                        "PropagateAtLaunch": true, 
+                        "Value": "consul-server"
+                    }
+                ], 
+                "VPCZoneIdentifier": [
+                    {
+                        "Ref": "PublicSubnet1"
+                    }, 
+                    {
+                        "Ref": "PublicSubnet2"
+                    }, 
+                    {
+                        "Ref": "PublicSubnet3"
+                    }
+                ]
+            }, 
+            "Type": "AWS::AutoScaling::AutoScalingGroup"
+        }, 
+        "demoConsulLaunchConfig": {
+            "Properties": {
+                "AssociatePublicIpAddress": "true", 
+                "BlockDeviceMappings": [
+                    {
+                        "DeviceName": "/dev/sda1", 
+                        "Ebs": {
+                            "DeleteOnTermination": "true"
+                        }
+                    }
+                ], 
+                "EbsOptimized": "false", 
+                "ImageId": "ami-9eaa1cf6", 
+                "InstanceType": "t2.medium", 
+                "KeyName": "fortier", 
+                "SecurityGroups": [
+                    {
+                        "Ref": "demohomeSsh"
+                    }, 
+                    {
+                        "Ref": "consul"
+                    }
+                ]
+            }, 
+            "Type": "AWS::AutoScaling::LaunchConfiguration"
+        }, 
+        "demoElb": {
+            "Properties": {
+                "CrossZone": "true", 
+                "Listeners": [
+                    {
+                        "InstancePort": 80, 
+                        "InstanceProtocol": "HTTP", 
+                        "LoadBalancerPort": 80, 
+                        "Protocol": "HTTP"
+                    }
+                ], 
+                "Subnets": [
+                    {
+                        "Ref": "PublicSubnet1"
+                    }, 
+                    {
+                        "Ref": "PublicSubnet2"
+                    }, 
+                    {
+                        "Ref": "PublicSubnet3"
+                    }
+                ]
+            }, 
+            "Type": "AWS::ElasticLoadBalancing::LoadBalancer"
+        }, 
+        "demoIgw": {
+            "Properties": {
+                "DestinationCidrBlock": "0.0.0.0/0", 
+                "GatewayId": {
+                    "Ref": "InternetGateway"
+                }, 
+                "RouteTableId": {
+                    "Ref": "demoRouteTable"
+                }
+            }, 
+            "Type": "AWS::EC2::Route"
+        }, 
+        "demoLaunchConfig": {
+            "Properties": {
+                "AssociatePublicIpAddress": "true", 
+                "BlockDeviceMappings": [
+                    {
+                        "DeviceName": "/dev/sda1", 
+                        "Ebs": {
+                            "DeleteOnTermination": "true"
+                        }
+                    }
+                ], 
+                "EbsOptimized": "false", 
+                "ImageId": "ami-9eaa1cf6", 
+                "InstanceType": "t2.medium", 
+                "KeyName": "fortier", 
+                "SecurityGroups": [
+                    {
+                        "Ref": "demohomeSsh"
+                    }, 
+                    {
+                        "Ref": "consul"
+                    }
+                ]
+            }, 
+            "Type": "AWS::AutoScaling::LaunchConfiguration"
+        }, 
+        "demoRouteTable": {
+            "Properties": {
+                "Tags": [
+                    {
+                        "Key": "Application", 
+                        "Value": {
+                            "Ref": "AWS::StackName"
+                        }
+                    }, 
+                    {
+                        "Key": "Name", 
+                        "Value": "demo-route-table"
+                    }
+                ], 
+                "VpcId": {
+                    "Ref": "demoVpc"
+                }
+            }, 
+            "Type": "AWS::EC2::RouteTable"
+        }, 
+        "demoRta1": {
+            "Properties": {
+                "RouteTableId": {
+                    "Ref": "demoRouteTable"
+                }, 
+                "SubnetId": {
+                    "Ref": "PublicSubnet1"
+                }
+            }, 
+            "Type": "AWS::EC2::SubnetRouteTableAssociation"
+        }, 
+        "demoRta2": {
+            "Properties": {
+                "RouteTableId": {
+                    "Ref": "demoRouteTable"
+                }, 
+                "SubnetId": {
+                    "Ref": "PublicSubnet2"
+                }
+            }, 
+            "Type": "AWS::EC2::SubnetRouteTableAssociation"
+        }, 
+        "demoRta3": {
+            "Properties": {
+                "RouteTableId": {
+                    "Ref": "demoRouteTable"
+                }, 
+                "SubnetId": {
+                    "Ref": "PublicSubnet3"
+                }
+            }, 
+            "Type": "AWS::EC2::SubnetRouteTableAssociation"
+        }, 
+        "demoVpc": {
+            "Properties": {
+                "CidrBlock": "10.43.1.0/16", 
+                "EnableDnsHostnames": "true", 
+                "EnableDnsSupport": "true", 
+                "Tags": [
+                    {
+                        "Key": "Name", 
+                        "Value": "demo"
+                    }
+                ]
+            }, 
+            "Type": "AWS::EC2::VPC"
+        }, 
+        "demohomeSsh": {
+            "Properties": {
+                "GroupDescription": "home SSH in", 
+                "Tags": [
+                    {
+                        "Key": "Name", 
+                        "Value": "demo-home-ssh"
+                    }
+                ], 
+                "VpcId": {
+                    "Ref": "demoVpc"
+                }
+            }, 
+            "Type": "AWS::EC2::SecurityGroup"
+        }, 
+        "home": {
+            "Properties": {
+                "CidrIp": "68.193.66.133/32", 
+                "FromPort": 22, 
+                "GroupId": {
+                    "Ref": "demohomeSsh"
+                }, 
+                "IpProtocol": "tcp", 
+                "ToPort": 22
+            }, 
+            "Type": "AWS::EC2::SecurityGroupIngress"
+        }
+    }
+}
