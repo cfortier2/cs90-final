@@ -287,6 +287,11 @@
                         "Protocol": "HTTP"
                     }
                 ], 
+                "SecurityGroups": [
+                    {
+                        "Ref": "elb"
+                    }
+                ], 
                 "Subnets": [
                     {
                         "Ref": "PublicSubnet1"
@@ -334,6 +339,9 @@
                     }, 
                     {
                         "Ref": "consul"
+                    }, 
+                    {
+                        "Ref": "elb"
                     }
                 ]
             }, 
@@ -420,6 +428,35 @@
                 }
             }, 
             "Type": "AWS::EC2::SecurityGroup"
+        }, 
+        "elb": {
+            "Properties": {
+                "GroupDescription": "elb", 
+                "Tags": [
+                    {
+                        "Key": "Name", 
+                        "Value": "demo-elb"
+                    }
+                ], 
+                "VpcId": {
+                    "Ref": "demoVpc"
+                }
+            }, 
+            "Type": "AWS::EC2::SecurityGroup"
+        }, 
+        "elbApp": {
+            "Properties": {
+                "FromPort": 80, 
+                "GroupId": {
+                    "Ref": "elb"
+                }, 
+                "IpProtocol": "tcp", 
+                "SourceSecurityGroupId": {
+                    "Ref": "elb"
+                }, 
+                "ToPort": 80
+            }, 
+            "Type": "AWS::EC2::SecurityGroupIngress"
         }, 
         "home": {
             "Properties": {

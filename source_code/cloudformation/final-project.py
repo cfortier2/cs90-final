@@ -168,6 +168,21 @@ consul_ui_rule.GroupId = Ref(consul_sg)
 consul_ui_rule.IpProtocol = 'tcp'
 t.add_resource(consul_ui_rule)
 
+# security group for elb
+elb_sg = SecurityGroup('elb')
+elb_sg.GroupDescription = 'elb'
+elb_sg.VpcId = Ref(vpc)
+elb_sg.Tags = Tags(Name = config['name'] + '-elb')
+t.add_resource(elb_sg)
+
+elb_ingress_rule = SecurityGroupIngress('elbApp')
+elb_ingress_rule.SourceSecurityGroupId = Ref(elb_sg)
+elb_ingress_rule.FromPort = 80
+elb_ingress_rule.ToPort = 80
+elb_ingress_rule.GroupId = Ref(elb_sg)
+elb_ingress_rule.IpProtocol = 'tcp'
+t.add_resource(elb_ingress_rule)
+
 # ssh for each home egress point
 home_ssh_rules = []
 for (ip, name) in home_egress_ips:
@@ -191,6 +206,7 @@ load_balancer = LoadBalancer(config['name'] + "Elb")
 load_balancer.CrossZone = True
 load_balancer.Listeners = [elb_listener_80]
 load_balancer.Subnets = [Ref(subnet.title) for subnet in app_subnets]
+load_balancer.SecurityGroups = [Ref(elb_sg)]
 t.add_resource(load_balancer)
 
 # launch configuration for consul server
@@ -237,7 +253,7 @@ app_launch_config.ImageId = config['app_launch_config']['image_id']
 app_launch_config.KeyName = config['app_launch_config']['key_name']
 app_launch_config.InstanceType = config['app_launch_config']['instance_type']
 app_launch_config.BlockDeviceMappings = [block_device_mapping]
-app_launch_config.SecurityGroups = [Ref(config['name'] + 'homeSsh'), Ref(consul_sg)]
+app_launch_config.SecurityGroups = [Ref(config['name'] + 'homeSsh'), Ref(consul_sg), Ref(elb_sg)]
 t.add_resource(app_launch_config)
 
 # auto scale group for application
